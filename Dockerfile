@@ -1,4 +1,4 @@
-FROM steamcmd/steamcmd:ubuntu-22
+FROM steamcmd/steamcmd:ubuntu-26
 
 ARG GID=1000
 ARG UID=1000
@@ -29,18 +29,24 @@ ENV AUTOSAVENUM="5" \
 
 # hadolint ignore=DL3008
 RUN set -x \
- && apt-get update \
- && apt-get install -y gosu xdg-user-dirs curl jq tzdata --no-install-recommends \
- && rm -rf /var/lib/apt/lists/* \
- && groupadd -g ${GID} steam \
- && useradd -u ${UID} -g ${GID} -ms /bin/bash steam \
- && mkdir -p /home/steam/.local/share/Steam/ \
- && cp -R /root/.local/share/Steam/steamcmd/ /home/steam/.local/share/Steam/steamcmd/ \
- && chown -R ${UID}:${GID} /home/steam/.local/ \
- && gosu nobody true
+    && apt-get update --quiet --quiet \
+    && apt-get install --yes --no-install-recommends gosu xdg-user-dirs curl jq tzdata
+RUN rm --recursive --force /var/lib/apt/lists/*
 
-RUN mkdir -p /config \
- && chown steam:steam /config
+# Remove existing user/group in case of UID/GID conflicts
+RUN id --user --name $UID | xargs userdel --remove || true
+RUN getent group $GID | cut --delimiter : --fields 1 | xargs groupdel || true
+
+# Create steam user
+RUN groupadd --gid ${GID} steam \
+    && useradd --uid ${UID} --gid ${GID} --create-home --shell /bin/bash steam
+RUN mkdir --parents /home/steam/.local/share/Steam/ \
+    && cp --recursive /root/.local/share/Steam/steamcmd/ /home/steam/.local/share/Steam/steamcmd/ \
+    && chown --recursive ${UID}:${GID} /home/steam/.local/ \
+    && gosu nobody true
+
+RUN mkdir --parents /config \
+    && chown steam:steam /config
 
 COPY init.sh /
 COPY --chown=steam:steam healthcheck.sh run.sh /home/steam/
@@ -56,4 +62,4 @@ LABEL version=$VERSION
 STOPSIGNAL SIGINT
 EXPOSE 7777/udp 7777/tcp 8888/tcp
 
-ENTRYPOINT [ "/init.sh" ]
+ENTRYPOINT ["/init.sh"]
