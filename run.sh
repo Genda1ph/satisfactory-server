@@ -101,7 +101,7 @@ ini_args=(
   "$MULTIHOME"
 )
 
-if [[ "${SKIPUPDATE,,}" != "false" ]] && [ ! -f "/config/gamefiles/FactoryServer.sh" ]; then
+if [[ "${SKIPUPDATE,,}" != "false" ]] && [[ ! -f "/config/gamefiles/FactoryServer.sh" ]]; then
     printf "%s Skip update is set, but no game files exist. Updating anyway\\n" "${MSGWARNING}"
     SKIPUPDATE="false"
 fi
@@ -132,7 +132,7 @@ if [[ "${SKIPUPDATE,,}" != "true" ]]; then
     fi
 
     printf "\\nDownloading the latest version of the game...\\n"
-    if [ -f "/config/gamefiles/steamapps/appmanifest_1690800.acf" ]; then
+    if [[ -f "/config/gamefiles/steamapps/appmanifest_1690800.acf" ]]; then
         printf "\\nRemoving the app manifest to force Steam to check for an update...\\n"
         rm "/config/gamefiles/steamapps/appmanifest_1690800.acf" || true
     fi
@@ -149,7 +149,7 @@ cp -r "${GAMESAVESDIR}/server/." "/config/backups" # Useful after the first run.
 rm -rf "$GAMESAVESDIR"
 ln -sf "/config/saved" "$GAMESAVESDIR"
 
-if [ ! -f "/config/gamefiles/FactoryServer.sh" ]; then
+if [[ ! -f "/config/gamefiles/FactoryServer.sh" ]]; then
     printf "FactoryServer launch script is missing.\\n"
     exit 1
 fi

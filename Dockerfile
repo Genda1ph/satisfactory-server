@@ -39,8 +39,8 @@ RUN set -x \
  && chown -R ${UID}:${GID} /home/steam/.local/ \
  && gosu nobody true
 
-RUN mkdir -p /config \
- && chown steam:steam /config
+RUN mkdir --parents /config \
+    && chown steam:steam /config
 
 COPY init.sh /
 COPY --chown=steam:steam healthcheck.sh run.sh /home/steam/
